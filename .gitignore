@@ -1,0 +1,20 @@
+# Ignore macOS system files
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Rust
+target/
+Cargo.lock
+
+# Node.js/JavaScript
+node_modules/
+
+# General editor files
+.vscode/
+.idea/
+*.swp
