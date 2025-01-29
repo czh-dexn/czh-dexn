@@ -8,7 +8,7 @@
 
 I’m particularly interested in how AI can enhance game development, aiming to create immersive experiences where NPCs have dynamic personalities and storylines adapt naturally. While generative AI and game design are key focuses, I'm always exploring new areas and eager to learn and create diverse projects.
 
-Outside of coding, you’ll find me chasing the adrenaline of speed — whether on virtual racetracks or coupled watching F1. For me, it’s not just about specs—it’s about the feel of raw performance. This passion fuels my drive to build tools that push boundaries both in technology and beyond.
+Outside of coding, you’ll find me chasing the adrenaline of speed — whether on virtual racetracks or couped up watching F1. For me, it’s not just about specs—it’s about the feel of raw performance. This passion fuels my drive to build tools that push boundaries both in technology and beyond.
 
 Let's connect and collaborate on projects that blend creativity with advanced tech, whether it's through innovative software or high-octane engineering!
 
