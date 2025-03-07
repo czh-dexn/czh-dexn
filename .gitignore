@@ -6,6 +6,7 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+*Projects/Python/Machine_Learning_Projects/Iris_Flower_Classification/venv_1
 
 # Rust
 target/

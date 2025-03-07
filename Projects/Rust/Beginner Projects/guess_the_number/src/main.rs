@@ -1,82 +1,107 @@
+// All our imports
 use std::io;
 use rand::Rng;
 use std::cmp::Ordering;
+use inquire::Select;
 use crossterm::{
     execute,
     style::{Color, Print, ResetColor, SetForegroundColor},
     terminal::size,
 };
 
-fn get_terminal_width() -> usize {
-    match size() {
-        // `size()` returns a Result<(u16, u16)>, so pattern-match on the tuple:
-        Ok((width, _height)) => {
-            // Subtract some padding to avoid filling the entire line
-            if width > 10 {
-                (width - 10) as usize
-            } else {
-                80
-            }
-        }
-        Err(_) => 80, // Fallback width if we fail to get terminal size
-    }
-}
-
-fn calculate_proximity(guess: u32, secret_number: u32) -> f32 {
-    let max_distance = 100;
-    let distance = if guess > secret_number {
-        guess - secret_number
-    } else {
-        secret_number - guess
+fn display_proximity_line(guess: u32, secret_number: u32) {
+    // Merge get_terminal_width logic:
+    let terminal_width: usize = match size() {
+        Ok((width, _)) if width > 10 => (width - 10) as usize,
+        _ => 80, // fallback if size can’t be determined or width is too small
     };
-    // Higher “distance” => lower “proximity”
-    ((max_distance - distance) as f32 / max_distance as f32) * 100.0
-}
 
-fn proximity_to_color(proximity: f32) -> Color {
-    if proximity >= 80.0 {
+    // Merge calculate_proximity logic:
+    let max_distance: u32 = 100;
+    let distance: u32 = if guess > secret_number {guess - secret_number} else {secret_number - guess};
+
+    // Raw percentage (higher percentage = closer)
+    let raw_proximity: f32 = (max_distance.saturating_sub(distance) as f32 / max_distance as f32) * 100.0;
+
+    // For incorrect guesses, quantize the percentage (floor to the nearest 10)
+    let displayed_proximity: f32 = if guess != secret_number {
+        let quantized: f32 = (raw_proximity / 10.0).floor() * 10.0;
+        if quantized >= 100.0 {90.0} else {quantized}
+    } else {
+        raw_proximity
+    };
+    
+    // Determine how many “filled” characters based on proximity:
+    let filled_length: usize = ((displayed_proximity / 100.0) * terminal_width as f32) as usize;
+    let empty_length: usize = terminal_width.saturating_sub(filled_length);
+
+    // Merge proximity_to_color logic:
+    let color: Color = if guess == secret_number {
+        Color::Green
+    } else if displayed_proximity >= 80.0 {
         Color::Red
-    } else if proximity >= 60.0 {
+    } else if displayed_proximity >= 60.0 {
         Color::DarkRed
-    } else if proximity >= 40.0 {
+    } else if displayed_proximity >= 40.0 {
         Color::Yellow
-    } else if proximity >= 20.0 {
+    } else if displayed_proximity >= 20.0 {
         Color::DarkBlue
     } else {
         Color::Blue
-    }
-}
+    };
 
-fn display_proximity_line(proximity: f32) {
-    let terminal_width = get_terminal_width();
-    // Determine how many “filled” characters to draw based on proximity
-    let filled_length = ((proximity / 100.0) * terminal_width as f32) as usize;
-    let empty_length = terminal_width.saturating_sub(filled_length);
-
-    let color = proximity_to_color(proximity);
     let filled = "█".repeat(filled_length);
     let empty = "-".repeat(empty_length);
 
+    // Output the colored filled portion, then the empty portion, and the proximity percentage:
     execute!(
         io::stdout(),
         SetForegroundColor(color),
         Print(&filled),
         ResetColor,
-        Print(&empty),
+        Print(&empty)
     )
     .unwrap();
 
-    println!(" {:.2}%", proximity);
+    println!(" {:.2}%", displayed_proximity);
+}
+
+#[derive(Debug)]
+enum Difficulty {
+    Easy, // Easy unlimited guesses, message history, 
+    Medium, // unlimted guesses, no message history
+    Hard, // 5 guesses, no message history and no proximity
 }
 
 fn main() {
     println!("Welcome to the Enhanced Guess the Number game!");
 
-    let secret_number = rand::thread_rng().gen_range(1..=100);
+    // Difficulty selection
+    let options: Vec<&str> = vec!["Easy", "Medium", "Hard"];
+    let difficulty: Result<&str, inquire::InquireError> = Select::new("Choose a difficulty level:", options).prompt();
+
+    let difficulty_enum =  match difficulty {
+        Ok("Easy") => Difficulty::Easy,
+        Ok("Medium") => Difficulty::Medium,
+        Ok("Hard") => Difficulty::Hard,
+
+        _ => {
+            println!("Invalid Selection.");
+            return;
+        }
+    };
+
+    println!("You selected: {:?}", difficulty_enum); //debuging - remove for gameplay
+
+    // Number generation 
+    let secret_number: u32 = rand::thread_rng().gen_range(1..=100);
+    println!("{}", secret_number); // debugging - remove for gameplay
+
+   
 
     loop {
         println!("Please enter your guess:");
-        let mut guess = String::new();
+        let mut guess: String = String::new();
 
         io::stdin()
             .read_line(&mut guess)
@@ -95,8 +120,7 @@ fn main() {
             continue;
         }
 
-        let proximity = calculate_proximity(guess, secret_number);
-        display_proximity_line(proximity);
+        display_proximity_line(guess, secret_number);
 
         match guess.cmp(&secret_number) {
             Ordering::Less => println!("Too small!"),
