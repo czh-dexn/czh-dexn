@@ -12,12 +12,12 @@ Outside of coding, you’ll find me chasing the adrenaline of speed — whether 
 
 Let's connect and collaborate on projects that blend creativity with advanced tech, whether it's through innovative software or high-octane engineering!
 
-<div align="center">
+<!-- <div align="center">
 	Socials:
      <a href="">Instagram</a> •
      <a href="">linkedin</a> •
      <a href="">discord</a>
-</div>
+</div> --->
 
 ## 🌟 About Me 
 
